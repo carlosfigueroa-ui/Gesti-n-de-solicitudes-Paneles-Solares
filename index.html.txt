@@ -1,0 +1,859 @@
+
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+							<style>
+								body {
+									background-color: white; /* Ensure the iframe has a white background */
+								}
+
+								
+							</style>
+                        </head>
+                        <body>
+                            <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coppel Solar - Gestión Integral</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #ffffff;
+            --bg-sidebar: #fafafa;
+            --bg-hover: #f3f4f6;
+            --primary-blue: #4379ee;
+            --primary-light: #eef2ff;
+            --text-dark: #111827;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --trend-green-bg: #d1fae5;
+            --trend-green-txt: #10b981;
+            --trend-red-bg: #fee2e2;
+            --trend-red-txt: #ef4444;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-dark); height: 100vh; display: flex; overflow: hidden; }
+
+        /* ICONOS SVG */
+        .icon { stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .icon-sm { width: 16px; height: 16px; }
+        .icon-md { width: 20px; height: 20px; }
+        .icon-lg { width: 24px; height: 24px; pointer-events: none; }
+
+        /* SIDEBAR */
+        .sidebar { width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; padding: 30px 20px; overflow-y: auto; flex-shrink: 0; }
+        .profile-card { background-color: #f3f4f6; border-radius: var(--radius-md); padding: 12px; display: flex; align-items: center; gap: 12px; margin-bottom: 30px; }
+        .profile-avatar { width: 40px; height: 40px; border-radius: 50%; background: #d1d5db; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
+        .profile-info h4 { font-size: 0.9rem; font-weight: 600; color: var(--text-dark); }
+        .profile-info p { font-size: 0.75rem; color: var(--text-muted); }
+        .menu-group { margin-bottom: 25px; }
+        .menu-title { font-size: 0.9rem; font-weight: 600; color: var(--text-dark); padding: 8px 12px; }
+        .menu-items { display: flex; flex-direction: column; margin-top: 5px; gap: 4px; }
+        
+        .nav-item { padding: 10px 12px 10px 20px; font-size: 0.85rem; color: var(--text-muted); border-radius: var(--radius-sm); cursor: pointer; transition: 0.2s; font-weight: 500; display: flex; align-items: center; gap: 12px; }
+        .nav-item:hover { background-color: var(--bg-hover); color: var(--text-dark); }
+        .nav-item.active { background-color: var(--primary-light); color: var(--primary-blue); font-weight: 600; }
+
+        /* CONTENIDO PRINCIPAL */
+        .main-content { flex: 1; display: flex; flex-direction: column; background-color: var(--bg-main); overflow-y: auto; }
+        
+        .view-section { display: none; padding: 30px 40px; }
+        .view-section.active { display: block; animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .page-header { margin-bottom: 25px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .page-header h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 4px; display: flex; align-items: center; gap: 12px;}
+        .page-header p { font-size: 0.85rem; color: var(--text-muted); }
+
+        /* VISUAL TOTAL SUPERIOR */
+        .badge-total-top {
+            background-color: var(--primary-light);
+            color: var(--primary-blue);
+            font-size: 0.9rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .header-actions-group { display: flex; gap: 10px; align-items: center; }
+        
+        .search-box { display: flex; align-items: center; gap: 8px; background: var(--bg-main); border: 1px solid var(--border-color); padding: 8px 12px; border-radius: var(--radius-sm); width: 240px; transition: 0.2s;}
+        .search-box:focus-within { border-color: var(--primary-blue); }
+        .search-box input { border: none; outline: none; font-size: 0.85rem; width: 100%; color: var(--text-dark); }
+        .search-box input::placeholder { color: #a1a1aa; }
+
+        .filter-select { padding: 9px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-dark); background-color: white; outline: none; cursor: pointer; font-weight: 500; }
+        .filter-select:focus { border-color: var(--primary-blue); }
+
+        .btn-primary { background-color: var(--primary-blue); color: white; border: none; padding: 10px 18px; border-radius: var(--radius-sm); font-weight: 500; font-size: 0.85rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px;}
+        .btn-primary:hover { background-color: #3264d6; }
+        .btn-secondary { background-color: white; color: var(--text-dark); border: 1px solid var(--border-color); padding: 10px 18px; border-radius: var(--radius-sm); font-weight: 500; font-size: 0.85rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+        .btn-secondary:hover { background-color: var(--bg-hover); }
+
+        /* DASHBOARD METRICS */
+        .card { background: var(--bg-main); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 25px; margin-bottom: 25px; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+        .metric-col { display: flex; justify-content: space-between; align-items: center; padding-right: 20px; border-right: 1px solid var(--border-color); }
+        .metric-col:last-child { border-right: none; padding-right: 0; }
+        .metric-info h4 { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; margin-bottom: 10px; display: flex; align-items: center; gap: 8px;}
+        .metric-info h4.blue { color: var(--primary-blue); }
+        .metric-info h4.cyan { color: #0ea5e9; }
+        .metric-info h4.green { color: #10b981; }
+        .metric-info .val { font-size: 1.8rem; font-weight: 600; margin-bottom: 6px; }
+
+        .chart-top-stats { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .big-stat h2 { font-size: 2rem; font-weight: 600; color: var(--primary-blue); margin-bottom: 5px; }
+        .small-stats { display: flex; gap: 40px; }
+        .s-stat h5 { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px; }
+        .s-stat p { font-size: 1.2rem; font-weight: 600; }
+        .combo-chart { position: relative; height: 180px; display: flex; align-items: flex-end; justify-content: space-between; padding-top: 20px; }
+        .chart-bar { width: 2.5%; background: #e0f2fe; border-radius: 4px 4px 0 0; }
+        .chart-line-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+
+        /* TABLA GENERAL */
+        .table-responsive { overflow-x: auto; width: 100%; }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        th { text-align: left; padding: 14px 16px; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-color); }
+        td { padding: 14px 16px; font-size: 0.85rem; color: var(--text-dark); border-bottom: 1px solid var(--border-color); }
+        tr:hover td { background: var(--bg-hover); }
+        
+        .folio-badge {
+            background: var(--primary-light); color: var(--primary-blue);
+            padding: 5px 10px; border-radius: 6px; font-weight: 600; font-family: monospace; font-size: 0.85rem; display: inline-block;
+        }
+
+        /* --- NUEVOS BOTONES DE ACCIÓN (ICONOS MINIMALISTAS CON EVENT DELEGATION) --- */
+        .action-icons { display: flex; gap: 6px; justify-content: center; align-items: center; }
+        .btn-action {
+            width: 32px; height: 32px; border-radius: 8px; border: none; background: transparent;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s;
+            color: var(--text-muted);
+        }
+        .btn-action:hover { background: var(--bg-hover); }
+        .btn-action.hide-btn:hover { background: var(--primary-light); color: var(--primary-blue); }
+        .btn-action.delete-btn { color: #d1d5db; }
+        .btn-action.delete-btn:hover { background: var(--trend-red-bg); color: var(--trend-red-txt); }
+        .btn-action.edit-btn:hover { background: var(--primary-light); color: var(--primary-blue); }
+        .btn-action.restore-btn:hover { background: #f0fdf4; color: #15803d; }
+
+        /* TIMELINE HORIZONTAL SCROLLEABLE */
+        .timeline-cell { max-width: 650px; min-width: 580px; }
+        .timeline-header-progress { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .progress-badge { font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; background: #e5e7eb; color: #374151; }
+        .progress-badge.complete { background: var(--trend-green-bg); color: var(--trend-green-txt); }
+        .progress-bar-bg { width: 100%; height: 5px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary-blue), #10b981); transition: width 0.3s ease; }
+        .timeline-scroll-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; }
+        .timeline-scroll-container::-webkit-scrollbar { height: 5px; }
+        .timeline-scroll-container::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .timeline-step { display: flex; align-items: center; gap: 6px; padding: 6px 10px; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; user-select: none; transition: all 0.2s ease; font-size: 0.75rem; white-space: nowrap; color: var(--text-muted); font-weight: 500; }
+        .timeline-step:hover { border-color: var(--primary-blue); background: #f1f5f9; }
+        .timeline-step.active { background: var(--primary-light); border-color: var(--primary-blue); color: var(--primary-blue); font-weight: 600; }
+        .timeline-step.completed { background: #f0fdf4; border-color: #86efac; color: #15803d; font-weight: 600; }
+
+        .step-num { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; background: #e2e8f0; color: #475569; pointer-events: none;}
+        .timeline-step.active .step-num { background: var(--primary-blue); color: white; }
+        .timeline-step.completed .step-num { background: #22c55e; color: white; }
+
+        /* SECCIÓN OCULTOS */
+        .hidden-section-toggle { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 15px 25px; background: #f9fafb; border-top: 1px solid var(--border-color); font-weight: 600; font-size: 0.9rem; color: var(--text-muted); }
+        .hidden-section-toggle:hover { background: #f3f4f6; color: var(--text-dark); }
+        .hidden-table-container { display: none; padding: 0 25px 25px 25px; background: #f9fafb; }
+        .hidden-table-container.open { display: block; }
+
+        /* MODALES */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.45); justify-content: center; align-items: center; z-index: 9999; }
+        .modal-overlay.show { display: flex; }
+        .modal-box { background: white; padding: 30px; border-radius: var(--radius-md); width: 560px; max-width: 95%; box-shadow: 0 20px 40px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { font-size: 1.2rem; font-weight: 600; }
+        .close-btn { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-muted); }
+        
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: span 2; }
+        .form-group label { font-size: 0.8rem; color: var(--text-muted); font-weight: 500; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 10px 12px; border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+            outline: none; font-size: 0.85rem; color: var(--text-dark); background: white;
+        }
+        .form-group input[readonly] { background: #f3f4f6; color: var(--text-muted); cursor: not-allowed; }
+        .form-group input:focus:not([readonly]), .form-group select:focus { border-color: var(--primary-blue); }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="profile-card">
+            <div class="profile-avatar">RC</div>
+            <div class="profile-info">
+                <h4>Resp. Coppel</h4>
+                <p>Admin Proyecto</p>
+            </div>
+        </div>
+        <div class="menu-group">
+            <div class="menu-title"><span>Menú Principal</span></div>
+            <div class="menu-items">
+                <div class="nav-item active" id="menu-dashboard">
+                    <svg class="icon icon-md" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                    CRM Overview
+                </div>
+                <div class="nav-item" id="menu-colaboradores">
+                    <svg class="icon icon-md" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Base Colaboradores
+                </div>
+                <div class="nav-item" id="menu-solicitudes">
+                    <svg class="icon icon-md" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                    Dir. Solicitudes
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+
+        <!-- DASHBOARD -->
+        <div id="vista-dashboard" class="view-section active">
+            <div class="page-header">
+                <div>
+                    <h1>CRM Dashboard</h1>
+                    <p>Monitoreo del avance de los 10 pasos del proceso solar</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="metrics-grid">
+                    <div class="metric-col">
+                        <div class="metric-info">
+                            <h4 class="blue">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                                En Prospección (Pasos 1-3)
+                            </h4>
+                            <div class="val" id="kpiEval">0</div>
+                        </div>
+                    </div>
+                    <div class="metric-col">
+                        <div class="metric-info">
+                            <h4 class="cyan">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                Trámite / Pagos (Pasos 4-9)
+                            </h4>
+                            <div class="val" id="kpiInst">0</div>
+                        </div>
+                    </div>
+                    <div class="metric-col">
+                        <div class="metric-info">
+                            <h4 class="green">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                                Instalados (Paso 10)
+                            </h4>
+                            <div class="val" id="kpiComp">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="chart-top-stats">
+                    <div class="big-stat">
+                        <span style="font-size:0.85rem; font-weight:500; color:var(--text-muted);">Inversión Total en Instalados</span>
+                        <h2 id="montoTotal">$0.00</h2>
+                    </div>
+                    <div class="small-stats">
+                        <div class="s-stat"><h5>Total Solicitudes</h5><p id="kpiTotalDash">0</p></div>
+                        <div class="s-stat"><h5>Total Colaboradores</h5><p id="kpiColabsDash">0</p></div>
+                    </div>
+                </div>
+                <div class="combo-chart">
+                    <svg class="chart-line-svg" preserveAspectRatio="none">
+                        <polyline points="10,140 70,110 140,125 210,80 280,95 350,60 420,75 490,45 560,90 630,50" fill="none" stroke="#f97316" stroke-width="2" stroke-dasharray="4,4"/>
+                    </svg>
+                    <div class="chart-bar" style="height:30%"></div><div class="chart-bar" style="height:55%"></div><div class="chart-bar" style="height:45%"></div><div class="chart-bar" style="height:70%"></div><div class="chart-bar" style="height:60%"></div><div class="chart-bar" style="height:85%"></div><div class="chart-bar" style="height:75%"></div><div class="chart-bar" style="height:95%"></div><div class="chart-bar" style="height:65%"></div><div class="chart-bar" style="height:90%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BASE COLABORADORES -->
+        <div id="vista-colaboradores" class="view-section">
+            <div class="page-header">
+                <div>
+                    <h1>Base de Datos - Colaboradores</h1>
+                    <p>Catálogo centralizado de colaboradores registrados</p>
+                </div>
+                <div class="header-actions-group">
+                    <div class="search-box">
+                        <svg class="icon icon-sm" style="color:#a1a1aa;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="searchColabs" placeholder="Buscar colaborador...">
+                    </div>
+                    <input type="file" id="fileExcelColabs" accept=".xls,.xlsx" style="display:none;">
+                    <button class="btn-secondary" id="btnImportColab">📥 Importar</button>
+                    <button class="btn-secondary" id="btnExportColab">📤 Exportar</button>
+                    <button class="btn-primary" id="btnOpenModalColab">+ Añadir</button>
+                </div>
+            </div>
+
+            <div class="card" style="padding: 0; overflow:hidden;">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Número de empleado</th>
+                                <th>Nombre completo</th>
+                                <th>Correo electrónico</th>
+                                <th>Ciudad</th>
+                                <th>Domicilio</th>
+                                <th>Teléfono</th>
+                                <th style="text-align: center;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaColaboradores"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SOLICITUDES -->
+        <div id="vista-solicitudes" class="view-section">
+            <div class="page-header">
+                <div>
+                    <h1 style="display:flex; align-items:center; gap:12px;">
+                        Directorio de Solicitudes
+                        <span class="badge-total-top" id="badgeTotalSolicitudesTop">Total: 0</span>
+                    </h1>
+                    <p>Línea de tiempo y seguimiento de los 10 pasos por solicitante</p>
+                </div>
+                <div class="header-actions-group">
+                    <div class="search-box">
+                        <svg class="icon icon-sm" style="color:#a1a1aa;" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <input type="text" id="searchSolicitudes" placeholder="Buscar folio o nombre...">
+                    </div>
+                    
+                    <select id="filtroEtapas" class="filter-select">
+                        <option value="ALL">Todas las etapas</option>
+                        <option value="0">Sin iniciar</option>
+                        <option value="1">1. Primer contacto</option>
+                        <option value="2">2. Envío a proveedor</option>
+                        <option value="3">3. Respuesta de proveedor</option>
+                        <option value="4">4. Envío a Fondo de Ahorro</option>
+                        <option value="5">5. Visto bueno Fondo de Ahorro</option>
+                        <option value="6">6. Envío plan de pagos</option>
+                        <option value="7">7. Visto bueno Colaborador</option>
+                        <option value="8">8. Envío de dinero</option>
+                        <option value="9">9. Pago al proveedor</option>
+                        <option value="10">10. Instalación</option>
+                    </select>
+
+                    <button class="btn-primary" id="btnOpenModalSolicitud">+ Añadir Solicitud</button>
+                </div>
+            </div>
+
+            <!-- TABLA PRINCIPAL DE ACTIVOS -->
+            <div class="card" style="padding: 0; overflow:hidden; margin-bottom: 0;">
+                <div class="table-responsive">
+                    <table style="width: 100%;">
+                        <thead>
+                            <tr>
+                                <th style="width: 100px;">Folio</th>
+                                <th style="width: 200px;">Nombre del solicitante</th>
+                                <th>Línea de Seguimiento</th>
+                                <th style="width: 120px; text-align: center;">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaSolicitudes"></tbody>
+                    </table>
+                </div>
+
+                <!-- SECCIÓN RETRÁCTIL PARA VER OCULTOS -->
+                <div class="hidden-section-toggle" id="btnToggleHidden">
+                    <span id="hiddenToggleText">▼ Ver solicitudes ocultas (0)</span>
+                    <span style="font-size: 0.8rem; font-weight: normal;">Archivadas</span>
+                </div>
+                <div class="hidden-table-container" id="hiddenContainer">
+                    <div class="table-responsive" style="margin-top: 15px;">
+                        <table style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Folio</th>
+                                    <th>Nombre del solicitante</th>
+                                    <th style="width: 120px; text-align: center;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaSolicitudesOcultas"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL COLABORADOR -->
+    <div class="modal-overlay" id="modalColaborador">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 id="modalColabTitle">Alta de Colaborador</h3>
+                <button class="close-btn" id="btnCloseModalColab">&times;</button>
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Número de empleado (*)</label>
+                    <input type="text" id="inColNum" placeholder="Ej. 99877">
+                </div>
+                <div class="form-group">
+                    <label>Nombre completo (*)</label>
+                    <input type="text" id="inColNombre" placeholder="Ej. Juan Pérez">
+                </div>
+                <div class="form-group full">
+                    <label>Correo electrónico</label>
+                    <input type="text" id="inColCorreo" placeholder="juan.perez@coppel.com">
+                </div>
+                <div class="form-group">
+                    <label>Ciudad</label>
+                    <input type="text" id="inColCiudad" placeholder="Ej. Culiacán">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="text" id="inColTel" placeholder="Ej. 6677889900">
+                </div>
+                <div class="form-group full">
+                    <label>Domicilio</label>
+                    <input type="text" id="inColDomicilio" placeholder="Calle, número, colonia...">
+                </div>
+                <div class="form-group full">
+                    <button type="button" class="btn-primary" id="btnGuardarColab" style="width:100%; justify-content:center; padding:14px; margin-top:10px; font-size:0.95rem;">
+                        Guardar Colaborador
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SOLICITUD -->
+    <div class="modal-overlay" id="modalSolicitud">
+        <div class="modal-box" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3>Nueva Solicitud</h3>
+                <button class="close-btn" id="btnCloseModalSol">&times;</button>
+            </div>
+            <div class="form-grid" style="grid-template-columns: 1fr;">
+                <div class="form-group">
+                    <label>Seleccionar Colaborador (*)</label>
+                    <select id="inSolColabSelect"></select>
+                    <small style="color:var(--text-muted); font-size:0.75rem; margin-top:5px;">Solo se muestran colaboradores sin solicitud activa.</small>
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <button type="button" class="btn-primary" id="btnGuardarSolicitud" style="width:100%; justify-content:center; padding:14px; font-size:0.95rem;">
+                        Crear Folio y Solicitud
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DEFINICIÓN DE LOS 10 PASOS
+        const PASOS = [
+            "Primer contacto", "Envío a proveedor", "Respuesta de proveedor", 
+            "Envío a Fondo de Ahorro", "Visto bueno Fondo de Ahorro", "Envío de plan de pagos a Colaborador", 
+            "Visto bueno de Colaborador", "Envío de dinero", "Pago al proveedor", "Instalación"
+        ];
+
+        let colaboradores = [];
+        let solicitudes = [];
+        let folioCounter = 1;
+
+        // Recuperar datos
+        try {
+            const cLocal = localStorage.getItem('csolar_colabs_v20');
+            const sLocal = localStorage.getItem('csolar_solic_v20');
+            const fLocal = localStorage.getItem('csolar_folio_v20');
+            if (cLocal) colaboradores = JSON.parse(cLocal);
+            if (sLocal) solicitudes = JSON.parse(sLocal);
+            if (fLocal) folioCounter = parseInt(fLocal);
+        } catch (e) {}
+
+        // Datos iniciales de prueba
+        if (colaboradores.length === 0) {
+            colaboradores.push({ num: '901234', nombre: 'Juan Pérez', correo: 'juan.perez@coppel.com', ciudad: 'Culiacán', domicilio: 'Av. Álvaro Obregón 123', telefono: '6671234567' });
+            colaboradores.push({ num: '905678', nombre: 'María López', correo: 'maria.lopez@coppel.com', ciudad: 'Monterrey', domicilio: 'Calle Hidalgo 450', telefono: '8182345678' });
+        }
+        if (solicitudes.length === 0) {
+            solicitudes.push({ id: 's1', folio: 'FOL-001', num: '901234', nombre: 'Juan Pérez', pasoActual: 3, timestamp: new Date().toLocaleString('es-MX'), oculto: false });
+            folioCounter = 2;
+        }
+
+        function sincronizarStorage() {
+            try {
+                localStorage.setItem('csolar_colabs_v20', JSON.stringify(colaboradores));
+                localStorage.setItem('csolar_solic_v20', JSON.stringify(solicitudes));
+                localStorage.setItem('csolar_folio_v20', folioCounter);
+            } catch (e) { console.error(e); }
+        }
+
+        // --- SISTEMA DE EVENT DELEGATION GLOBAL PARA BOTONES DE TABLA ---
+        // ESTO GARANTIZA QUE LOS BOTONES SIEMPRE FUNCIONEN SIN IMPORTAR CUÁNTAS VECES SE REDIBUJE EL HTML
+        document.addEventListener('click', function(e) {
+            
+            // 1. ELIMINAR COLABORADOR
+            const btnDeleteColab = e.target.closest('.del-colab-btn');
+            if (btnDeleteColab) {
+                const num = btnDeleteColab.dataset.num;
+                if (confirm(`¿Deseas eliminar de forma permanente al colaborador ${num}?`)) {
+                    colaboradores = colaboradores.filter(c => c.num !== num);
+                    sincronizarStorage();
+                    renderAll();
+                }
+                return;
+            }
+
+            // 2. EDITAR COLABORADOR
+            const btnEditColab = e.target.closest('.edit-colab-btn');
+            if (btnEditColab) {
+                const num = btnEditColab.dataset.num;
+                const colab = colaboradores.find(c => c.num === num);
+                if (colab) {
+                    document.getElementById('modalColabTitle').innerText = 'Editar Colaborador';
+                    document.getElementById('inColNum').value = colab.num;
+                    document.getElementById('inColNum').readOnly = true;
+                    document.getElementById('inColNombre').value = colab.nombre;
+                    document.getElementById('inColCorreo').value = colab.correo;
+                    document.getElementById('inColCiudad').value = colab.ciudad;
+                    document.getElementById('inColTel').value = colab.telefono;
+                    document.getElementById('inColDomicilio').value = colab.domicilio;
+                    document.getElementById('modalColaborador').classList.add('show');
+                }
+                return;
+            }
+
+            // 3. ELIMINAR SOLICITUD
+            const btnDeleteSol = e.target.closest('.del-sol-btn');
+            if (btnDeleteSol) {
+                const id = btnDeleteSol.dataset.id;
+                if (confirm('¿Deseas eliminar de forma permanente este registro?')) {
+                    solicitudes = solicitudes.filter(s => s.id !== id);
+                    sincronizarStorage();
+                    renderAll();
+                }
+                return;
+            }
+
+            // 4. OCULTAR SOLICITUD
+            const btnHideSol = e.target.closest('.hide-sol-btn');
+            if (btnHideSol) {
+                const id = btnHideSol.dataset.id;
+                const target = solicitudes.find(s => s.id === id);
+                if (target) { 
+                    target.oculto = true; 
+                    sincronizarStorage(); 
+                    renderAll(); 
+                }
+                return;
+            }
+
+            // 5. RESTAURAR SOLICITUD
+            const btnRestoreSol = e.target.closest('.restore-sol-btn');
+            if (btnRestoreSol) {
+                const id = btnRestoreSol.dataset.id;
+                const target = solicitudes.find(s => s.id === id);
+                if (target) { 
+                    target.oculto = false; 
+                    sincronizarStorage(); 
+                    renderAll(); 
+                }
+                return;
+            }
+
+            // 6. ACTUALIZAR TIMELINE (PASOS)
+            const stepBtn = e.target.closest('.timeline-step');
+            if(stepBtn) {
+                const solId = stepBtn.dataset.solid;
+                const numPasoClickeado = parseInt(stepBtn.dataset.step);
+                const target = solicitudes.find(s => s.id === solId);
+                if (target) {
+                    if (target.pasoActual === numPasoClickeado) target.pasoActual = numPasoClickeado - 1;
+                    else target.pasoActual = numPasoClickeado;
+                    sincronizarStorage();
+                    renderAll();
+                }
+                return;
+            }
+
+        }); // Fin Event Delegation
+
+        // Navegación
+        function setView(viewId) {
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('vista-' + viewId).classList.add('active');
+            document.getElementById('menu-' + viewId).classList.add('active');
+            renderAll();
+        }
+
+        document.getElementById('menu-dashboard').addEventListener('click', () => setView('dashboard'));
+        document.getElementById('menu-colaboradores').addEventListener('click', () => setView('colaboradores'));
+        document.getElementById('menu-solicitudes').addEventListener('click', () => setView('solicitudes'));
+
+        // Filtros y búsquedas
+        document.getElementById('filtroEtapas').addEventListener('change', renderSolicitudes);
+        document.getElementById('searchColabs').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            document.querySelectorAll('#tablaColaboradores tr').forEach(row => { row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none'; });
+        });
+        document.getElementById('searchSolicitudes').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase().trim();
+            document.querySelectorAll('#tablaSolicitudes tr, #tablaSolicitudesOcultas tr').forEach(row => { row.style.display = row.innerText.toLowerCase().includes(term) ? '' : 'none'; });
+        });
+        document.getElementById('btnToggleHidden').addEventListener('click', () => {
+            document.getElementById('hiddenContainer').classList.toggle('open');
+        });
+
+        // FUNCIONES DE REDERIZADO
+        function renderAll() {
+            renderColaboradores();
+            renderSolicitudes();
+            renderDashboard();
+        }
+
+        function renderColaboradores() {
+            const tbody = document.getElementById('tablaColaboradores');
+            tbody.innerHTML = '';
+            colaboradores.forEach(c => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight:600;">${c.num}</td>
+                    <td>${c.nombre}</td>
+                    <td style="color:var(--text-muted);">${c.correo}</td>
+                    <td>${c.ciudad}</td>
+                    <td>${c.domicilio}</td>
+                    <td>${c.telefono}</td>
+                    <td style="text-align: center;">
+                        <div class="action-icons">
+                            <button class="btn-action edit-btn edit-colab-btn" data-num="${c.num}" title="Editar">
+                                <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                            </button>
+                            <button class="btn-action delete-btn del-colab-btn" data-num="${c.num}" title="Eliminar">
+                                <svg class="icon icon-md" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderSolicitudes() {
+            const tbodyActivos = document.getElementById('tablaSolicitudes');
+            const tbodyOcultos = document.getElementById('tablaSolicitudesOcultas');
+            tbodyActivos.innerHTML = ''; tbodyOcultos.innerHTML = '';
+
+            const filtroValue = document.getElementById('filtroEtapas').value;
+            let ocultosCount = 0;
+            let activosCount = 0;
+
+            solicitudes.forEach(s => {
+                if (s.oculto) {
+                    ocultosCount++;
+                    const trO = document.createElement('tr');
+                    trO.innerHTML = `
+                        <td><span class="folio-badge">${s.folio}</span></td>
+                        <td style="font-weight:600;">${s.nombre}</td>
+                        <td style="text-align: center;">
+                            <div class="action-icons">
+                                <button class="btn-action restore-btn restore-sol-btn" data-id="${s.id}" title="Restaurar">
+                                    <svg class="icon icon-md" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                                </button>
+                                <button class="btn-action delete-btn del-sol-btn" data-id="${s.id}" title="Eliminar definitivamente">
+                                    <svg class="icon icon-md" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                </button>
+                            </div>
+                        </td>
+                    `;
+                    tbodyOcultos.appendChild(trO);
+                    return;
+                }
+
+                activosCount++;
+
+                if (filtroValue !== 'ALL') {
+                    const pAct = s.pasoActual || 0;
+                    if (pAct.toString() !== filtroValue) return;
+                }
+
+                const tr = document.createElement('tr');
+                const pasoNum = s.pasoActual || 0;
+                const porcentaje = Math.round((pasoNum / 10) * 100);
+                const nombreEtapaActual = pasoNum === 0 ? "Sin iniciar" : (pasoNum === 10 ? "Instalación completada ✅" : PASOS[pasoNum - 1]);
+
+                let stepsHtml = '';
+                PASOS.forEach((nombrePaso, idx) => {
+                    const numPaso = idx + 1;
+                    let claseEstado = '';
+                    if (numPaso < pasoNum) claseEstado = 'completed';
+                    else if (numPaso === pasoNum) claseEstado = 'active';
+
+                    stepsHtml += `
+                        <div class="timeline-step ${claseEstado}" data-solid="${s.id}" data-step="${numPaso}" title="Paso ${numPaso}: ${nombrePaso}">
+                            <span class="step-num">${numPaso < pasoNum ? '✓' : numPaso}</span>
+                            <span>${nombrePaso}</span>
+                        </div>
+                    `;
+                });
+
+                tr.innerHTML = `
+                    <td><span class="folio-badge">${s.folio}</span></td>
+                    <td style="font-weight:600; font-size:0.95rem;">${s.nombre}</td>
+                    <td class="timeline-cell">
+                        <div class="timeline-header-progress">
+                            <span style="font-size: 0.8rem; color: var(--text-dark); font-weight: 500;">Etapa: <strong>${nombreEtapaActual}</strong></span>
+                            <span class="progress-badge ${porcentaje === 100 ? 'complete' : ''}">${porcentaje}%</span>
+                        </div>
+                        <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${porcentaje}%;"></div></div>
+                        <div class="timeline-scroll-container">${stepsHtml}</div>
+                    </td>
+                    <td style="text-align: center;">
+                        <div class="action-icons">
+                            <button class="btn-action hide-btn hide-sol-btn" data-id="${s.id}" title="Ocultar">
+                                <svg class="icon icon-md" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            </button>
+                            <button class="btn-action delete-btn del-sol-btn" data-id="${s.id}" title="Eliminar">
+                                <svg class="icon icon-md" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbodyActivos.appendChild(tr);
+            });
+
+            document.getElementById('hiddenToggleText').innerText = `▼ Ver solicitudes ocultas (${ocultosCount})`;
+            document.getElementById('badgeTotalSolicitudesTop').innerText = `Total: ${activosCount}`;
+        }
+
+        function renderDashboard() {
+            let prospeccion = 0, fondoPagos = 0, instalados = 0;
+            solicitudes.forEach(s => {
+                if (s.oculto) return;
+                const p = s.pasoActual || 0;
+                if (p >= 1 && p <= 3) prospeccion++;
+                else if (p >= 4 && p <= 9) fondoPagos++;
+                else if (p === 10) instalados++;
+            });
+            const totalActivos = solicitudes.filter(s => !s.oculto).length;
+            document.getElementById('kpiEval').innerText = prospeccion;
+            document.getElementById('kpiInst').innerText = fondoPagos;
+            document.getElementById('kpiComp').innerText = instalados;
+            
+            document.getElementById('kpiTotalDash').innerText = totalActivos;
+            document.getElementById('kpiColabsDash').innerText = colaboradores.length;
+            document.getElementById('montoTotal').innerText = '$' + (instalados * 35200).toLocaleString('en-US', { minimumFractionDigits: 2 });
+        }
+
+        // --- LÓGICA MODALES DE CREACIÓN Y GUARDADO ---
+
+        // COLABORADOR
+        const modalColab = document.getElementById('modalColaborador');
+        document.getElementById('btnOpenModalColab').addEventListener('click', () => {
+            document.getElementById('modalColabTitle').innerText = 'Alta de Colaborador';
+            document.getElementById('inColNum').readOnly = false;
+            document.getElementById('inColNum').value = ''; 
+            document.getElementById('inColNombre').value = '';
+            document.getElementById('inColCorreo').value = ''; 
+            document.getElementById('inColCiudad').value = '';
+            document.getElementById('inColTel').value = ''; 
+            document.getElementById('inColDomicilio').value = '';
+            modalColab.classList.add('show');
+        });
+        document.getElementById('btnCloseModalColab').addEventListener('click', () => modalColab.classList.remove('show'));
+
+        document.getElementById('btnGuardarColab').addEventListener('click', () => {
+            const num = document.getElementById('inColNum').value.trim(), nombre = document.getElementById('inColNombre').value.trim();
+            if (!num || !nombre) { alert('El Número de empleado y el Nombre completo son obligatorios.'); return; }
+            const cObj = { num, nombre, correo: document.getElementById('inColCorreo').value.trim(), ciudad: document.getElementById('inColCiudad').value.trim(), tel: document.getElementById('inColTel').value.trim(), domicilio: document.getElementById('inColDomicilio').value.trim() };
+            const idx = colaboradores.findIndex(c => c.num === num);
+            if (idx !== -1) colaboradores[idx] = cObj; else colaboradores.unshift(cObj);
+            sincronizarStorage(); modalColab.classList.remove('show'); renderAll();
+        });
+
+        // SOLICITUD
+        const modalSol = document.getElementById('modalSolicitud');
+        const selColab = document.getElementById('inSolColabSelect');
+
+        document.getElementById('btnOpenModalSolicitud').addEventListener('click', () => {
+            const colaboradoresDisponibles = colaboradores.filter(c => !solicitudes.some(s => s.num === c.num && !s.oculto));
+            if (colaboradoresDisponibles.length === 0) { alert('No hay colaboradores nuevos por asignar.'); return; }
+            selColab.innerHTML = '<option value="">-- Selecciona un colaborador --</option>';
+            colaboradoresDisponibles.forEach(c => { selColab.innerHTML += `<option value="${c.num}">${c.num} - ${c.nombre}</option>`; });
+            modalSol.classList.add('show');
+        });
+        document.getElementById('btnCloseModalSol').addEventListener('click', () => modalSol.classList.remove('show'));
+
+        document.getElementById('btnGuardarSolicitud').addEventListener('click', () => {
+            const numSel = selColab.value;
+            if (!numSel) { alert('Selecciona un colaborador.'); return; }
+            const folioStr = 'FOL-' + String(folioCounter).padStart(3, '0');
+            folioCounter++;
+            const colab = colaboradores.find(c => c.num === numSel);
+            const nuevaSol = { 
+                id: 'SOL-' + Date.now().toString().slice(-4), folio: folioStr, timestamp: new Date().toLocaleString('es-MX'), 
+                num: colab.num, nombre: colab.nombre, pasoActual: 1, oculto: false
+            };
+            solicitudes.unshift(nuevaSol); sincronizarStorage(); modalSol.classList.remove('show'); renderAll(); setView('solicitudes');
+        });
+
+        // EXCEL IMPORT / EXPORT (SOLO BASE DE DATOS)
+        const fileInputColab = document.getElementById('fileExcelColabs');
+        document.getElementById('btnImportColab').addEventListener('click', () => fileInputColab.click());
+        fileInputColab.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                try {
+                    const data = new Uint8Array(evt.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet);
+                    let count = 0;
+                    json.forEach(row => {
+                        const num = String(row['Núm. empleado'] || row['Numero de empleado'] || row['Num'] || '').trim();
+                        const nombre = (row['Nombre completo'] || row['Nombre'] || '').trim();
+                        if (num && nombre) {
+                            const cObj = { num, nombre, correo: row['Correo electrónico'] || row['Correo'] || '', ciudad: row['Ciudad'] || '', domicilio: row['Domicilio'] || '', telefono: String(row['Teléfono'] || row['Telefono'] || '') };
+                            const idx = colaboradores.findIndex(c => c.num === num);
+                            if (idx !== -1) colaboradores[idx] = cObj; else colaboradores.unshift(cObj);
+                            count++;
+                        }
+                    });
+                    sincronizarStorage(); renderAll(); alert(`Se importaron/actualizaron ${count} colaboradores.`);
+                } catch (err) { alert('Error al leer el archivo Excel.'); }
+                fileInputColab.value = '';
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        document.getElementById('btnExportColab').addEventListener('click', () => {
+            if (colaboradores.length === 0) { alert('No hay datos para exportar.'); return; }
+            const exportData = colaboradores.map(c => ({ 'Núm. empleado': c.num, 'Nombre completo': c.nombre, 'Correo electrónico': c.correo, 'Ciudad': c.ciudad, 'Domicilio': c.domicilio, 'Teléfono': c.telefono }));
+            const ws = XLSX.utils.json_to_sheet(exportData); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Colaboradores'); XLSX.writeFile(wb, 'Base_Colaboradores.xlsx');
+        });
+
+        // INICIALIZACIÓN
+        renderAll(); setView('solicitudes');
+    </script>
+</body>
+</html>
+
+							<script>
+                            	
+							</script>
+                        </body>
+                        </html>
+                    
